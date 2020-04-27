@@ -1,5 +1,9 @@
 # u-editor
 百度编辑器,composer eayswoole版本.  
+## 安装
+```bash
+composer require easyswoole/u-editor
+```
 
 ## 使用方法
 新增一个控制器,继承`EasySwoole\UEditor\UEditorController`.
