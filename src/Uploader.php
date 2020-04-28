@@ -42,7 +42,7 @@ class Uploader
      * @param array  $config 配置项
      * @param bool   $base64 是否解析base64编码，可省略。若开启，则$fileField代表的是base64编码的字符串表单名
      */
-    public function __construct(UploadConfig $config, $fileField, ?Request $request=null, $type = self::UPLOAD_TYPE_UPLOAD)
+    public function __construct(UploadConfig $config, $fileField, ?Request $request = null, $type = self::UPLOAD_TYPE_UPLOAD)
     {
         $this->fileField = $fileField;
         $this->config = $config;
@@ -202,7 +202,7 @@ class Uploader
         $response = $httpClient->get();
         $img = $response->getBody();
         //请求结果判断
-        if (!(stristr($response->getStatusCode(), "200"))){
+        if (!(stristr($response->getStatusCode(), "200"))) {
             $this->stateInfo = $this->getStateInfo("ERROR_DEAD_LINK");
             return;
         }
@@ -265,9 +265,8 @@ class Uploader
      */
     private function getFileExt()
     {
-        $extensionName = MimeType::getExtFromStream($this->file);
         $extName = strtolower(strrchr($this->oriName, '.'));
-        return '.'.$extensionName ?? $extName;
+        return $extName;
     }
 
     /**
@@ -350,7 +349,7 @@ class Uploader
     /**
      * 获取当前上传成功文件的各项信息
      */
-    public function getFileInfo():UploadResponse
+    public function getFileInfo(): UploadResponse
     {
         $response = new UploadResponse();
         $response->setState($this->stateInfo);
