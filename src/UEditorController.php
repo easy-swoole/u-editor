@@ -110,6 +110,6 @@ abstract class UEditorController extends Controller
     protected function config()
     {
         $UEditor = new UEditor();
-        $this->response()->write(json_encode($UEditor->getConfList()));
+        $this->response()->write(json_encode($UEditor->getConfig()));
     }
 }

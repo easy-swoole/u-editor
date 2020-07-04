@@ -14,13 +14,13 @@ class ConfigTest extends TestCase
     public function testGetConfig()
     {
         $UEditor = new UEditor();
-        $config = $UEditor->getConfList();
+        $config = $UEditor->getConfig();
         $this->assertEmpty($config['catcherUrlPrefix']);
 
         $catcherConfig = new CatcherConfig();
         $catcherConfig->setCatcherUrlPrefix('http://xxx.xxx.xxx/');
         $UEditor->setConfigList([$catcherConfig]);
-        $config = $UEditor->getConfList();
+        $config = $UEditor->getConfig();
         $this->assertEquals('http://xxx.xxx.xxx/', $config['catcherUrlPrefix']);
     }
 }
