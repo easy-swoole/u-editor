@@ -71,14 +71,11 @@ class UEditor
     {
         $list = [];
 
-        if (empty($this->configList)) {
-            $this->getConfig();
-        }
-
+        $configList = $this->getConfig();
         /**
          * @var $config SplBean
          */
-        foreach ($this->configList as $config) {
+        foreach ($configList as $config) {
             $list = array_merge($list, $config->toArray());
         }
 
