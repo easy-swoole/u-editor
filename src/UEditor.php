@@ -25,32 +25,53 @@ class UEditor
 {
     protected $rootPath;
 
+    protected $configList = [];
+
     public function __construct($rootPath = EASYSWOOLE_ROOT)
     {
         $this->rootPath = $rootPath;
     }
 
-    function getConfig(array $configList = [])
+    public function setConfigList(array $configList): void
+    {
+        foreach ($configList as $config) {
+            if (is_object($config)) {
+                $this->configList[get_class($config)] = $config;
+                continue;
+            }
+
+            if (is_string($config) && class_exists($config)) {
+                $this->configList[$config] = new $config;
+                continue;
+            }
+
+            $this->configList[$config] = $config;
+        }
+    }
+
+    function getConfList()
+    {
+        if (empty($this->configList)) {
+            $defaultConfigList = [
+                new CatcherConfig(),
+                new FileConfig(),
+                new FileManagerConfig(),
+                new ImageConfig(),
+                new ImageManagerConfig(),
+                new ScrawlConfig(),
+                new SnapScreenConfig(),
+                new VideoConfig(),
+            ];
+            $this->setConfigList($defaultConfigList);
+        }
+        return $this->configList;
+    }
+
+    function getConfig()
     {
         $list = [];
-        //默认config
-        $defaultConfigList = [
-            new CatcherConfig(),
-            new FileConfig(),
-            new FileManagerConfig(),
-            new ImageConfig(),
-            new ImageManagerConfig(),
-            new ScrawlConfig(),
-            new SnapScreenConfig(),
-            new VideoConfig(),
-        ];
-        /**
-         * @var $config SplBean
-         */
-        foreach ($defaultConfigList as $config) {
-            $list = array_merge($list, $config->toArray());
-        }
 
+        $configList = $this->getConfList();
         /**
          * @var $config SplBean
          */
@@ -64,8 +85,8 @@ class UEditor
     /**
      * 上传图片
      * uploadImage
-     * @param Request      $request
-     * @param ImageConfig  $imageConfig
+     * @param Request $request
+     * @param ImageConfig $imageConfig
      * @param UploadConfig $uploadConfig
      * @return UploadResponse
      * @author Tioncico
@@ -74,7 +95,7 @@ class UEditor
     function uploadImage($request, ?ImageConfig $imageConfig = null, ?UploadConfig $uploadConfig = null): UploadResponse
     {
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
-        $imageConfig = $imageConfig ?? new ImageConfig();
+        $imageConfig = $imageConfig ?? $this->getConfList()[ImageConfig::class];
         $uploadConfig->setPathFormat($imageConfig->getImagePathFormat());
         $uploadConfig->setMaxSize($imageConfig->getImageMaxSize());
         $uploadConfig->setAllowFiles($imageConfig->getImageAllowFiles());
@@ -85,17 +106,17 @@ class UEditor
     /**
      * 上传涂鸦
      * uploadScrawl
-     * @param Request      $request
+     * @param Request $request
      * @param ScrawlConfig $scrawlConfig
      * @param UploadConfig $uploadConfig
      * @return UploadResponse
      * @author Tioncico
      * Time: 10:04
      */
-    function uploadScrawl($request, ?ScrawlConfig $scrawlConfig=null, ?UploadConfig $uploadConfig = null): UploadResponse
+    function uploadScrawl($request, ?ScrawlConfig $scrawlConfig = null, ?UploadConfig $uploadConfig = null): UploadResponse
     {
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
-        $scrawlConfig = $scrawlConfig ?? new ScrawlConfig();
+        $scrawlConfig = $scrawlConfig ?? $this->getConfList()[ScrawlConfig::class];
         $uploadConfig->setPathFormat($scrawlConfig->getScrawlPathFormat());
         $uploadConfig->setMaxSize($scrawlConfig->getScrawlMaxSize());
         $uploadConfig->setAllowFiles($scrawlConfig->getScrawlAllowFiles());
@@ -107,7 +128,7 @@ class UEditor
     function uploadVideo($request, ?VideoConfig $videoConfig = null, ?UploadConfig $uploadConfig = null): UploadResponse
     {
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
-        $videoConfig = $videoConfig ?? new VideoConfig();;
+        $videoConfig = $videoConfig ?? $this->getConfList()[VideoConfig::class];
         $uploadConfig->setPathFormat($videoConfig->getVideoPathFormat());
         $uploadConfig->setMaxSize($videoConfig->getVideoMaxSize());
         $uploadConfig->setAllowFiles($videoConfig->getVideoAllowFiles());
@@ -119,7 +140,7 @@ class UEditor
     function uploadFile($request, ?FileConfig $fileConfig = null, ?UploadConfig $uploadConfig = null): UploadResponse
     {
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
-        $fileConfig = $fileConfig ?? new FileConfig();
+        $fileConfig = $fileConfig ?? $this->getConfList()[VideoConfig::class];
         $uploadConfig->setPathFormat($fileConfig->getFilePathFormat());
         $uploadConfig->setMaxSize($fileConfig->getFileMaxSize());
         $uploadConfig->setAllowFiles($fileConfig->getFileAllowFiles());
@@ -129,21 +150,21 @@ class UEditor
 
     function listImage(?ImageManagerConfig $imageManagerConfig = null, $page = 1, $pageSize = 20): FileListResponse
     {
-        $imageManagerConfig = $imageManagerConfig ?? new ImageManagerConfig();
+        $imageManagerConfig = $imageManagerConfig ?? $this->getConfList()[ImageManagerConfig::class];
         $fileManager = new FileManager($this->rootPath, $imageManagerConfig->getImageManagerListPath(), $imageManagerConfig->getImageManagerAllowFiles());
         return $fileManager->getFileList(($page - 1) * $pageSize, $pageSize);
     }
 
     function listFile(?FileManagerConfig $fileManagerConfig = null, $page = 1, $pageSize = 20)
     {
-        $fileManagerConfig = $fileManagerConfig ?? new FileManagerConfig();
+        $fileManagerConfig = $fileManagerConfig ?? $this->getConfList()[FileManagerConfig::class];
         $fileManager = new FileManager($this->rootPath, $fileManagerConfig->getFileManagerListPath(), $fileManagerConfig->getFileManagerAllowFiles());
         return $fileManager->getFileList(($page - 1) * $pageSize, $pageSize);
     }
 
-    function catchImage(CatcherConfig $catcherConfig, $remoteList = [], ?UploadConfig $uploadConfig = null)
+    function catchImage(?CatcherConfig $catcherConfig, $remoteList = [], ?UploadConfig $uploadConfig = null)
     {
-        $catcherConfig = $catcherConfig ?? new CatcherConfig();
+        $catcherConfig = $catcherConfig ?? $this->getConfList()[CatcherConfig::class];
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
         $uploadConfig->setPathFormat($catcherConfig->getCatcherPathFormat());
         $uploadConfig->setMaxSize($catcherConfig->getCatcherMaxSize());
@@ -160,7 +181,7 @@ class UEditor
         /* 返回抓取数据 */
         return [
             'state' => count($list) ? 'SUCCESS' : 'ERROR',
-            'list'  => $list
+            'list' => $list
         ];
     }
 }
