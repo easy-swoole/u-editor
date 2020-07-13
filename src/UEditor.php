@@ -27,7 +27,7 @@ class UEditor
 
     protected $configList = [];
 
-    public function __construct($rootPath = EASYSWOOLE_ROOT)
+    public function __construct(string $rootPath)
     {
         $this->rootPath = $rootPath;
     }

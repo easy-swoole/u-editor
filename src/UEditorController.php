@@ -19,9 +19,10 @@ abstract class UEditorController extends Controller
     /** @var UEditor */
     protected $UEditor;
 
-    public function __construct(array $configList = [])
+    public function __construct()
     {
         $this->UEditor = new UEditor($this->rootPath);
+        $configList = [];
         $this->UEditor->setConfigList($configList);
         parent::__construct();
     }

@@ -13,7 +13,7 @@ class ConfigTest extends TestCase
 {
     public function testGetConfig()
     {
-        $UEditor = new UEditor();
+        $UEditor = new UEditor('./Upload');
         $config = $UEditor->getConfig();
         $this->assertEmpty($config['catcherUrlPrefix']);
 
