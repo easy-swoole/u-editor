@@ -11,6 +11,13 @@ namespace EasySwoole\UEditor;
 
 use EasySwoole\Http\AbstractInterface\Controller;
 use EasySwoole\UEditor\Config\CatcherConfig;
+use EasySwoole\UEditor\Config\FileConfig;
+use EasySwoole\UEditor\Config\FileManagerConfig;
+use EasySwoole\UEditor\Config\ImageConfig;
+use EasySwoole\UEditor\Config\ImageManagerConfig;
+use EasySwoole\UEditor\Config\ScrawlConfig;
+use EasySwoole\UEditor\Config\SnapScreenConfig;
+use EasySwoole\UEditor\Config\VideoConfig;
 
 abstract class UEditorController extends Controller
 {
@@ -22,7 +29,16 @@ abstract class UEditorController extends Controller
     public function __construct()
     {
         $this->UEditor = new UEditor($this->rootPath);
-        $configList = [];
+        $configList = [
+            new CatcherConfig(),
+            new FileConfig(),
+            new FileManagerConfig(),
+            new ImageConfig(),
+            new ImageManagerConfig(),
+            new ScrawlConfig(),
+            new SnapScreenConfig(),
+            new VideoConfig(),
+        ];
         $this->UEditor->setConfigList($configList);
         parent::__construct();
     }
@@ -72,47 +88,64 @@ abstract class UEditorController extends Controller
         $field = $catchImageConfig->getCatcherFieldName();
         $remoteList = $this->request()->getRequestParam($field);
         $result = $this->UEditor->catchImage($catchImageConfig, $remoteList);
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function uploadImage()
     {
         $result = $this->UEditor->uploadImage($this->request());
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function uploadScrawl()
     {
         $result = $this->UEditor->uploadScrawl($this->request());
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function uploadVideo()
     {
         $result = $this->UEditor->uploadVideo($this->request());
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function uploadFile()
     {
         $result = $this->UEditor->uploadFile($this->request());
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function listImage()
     {
         $result = $this->UEditor->listImage();
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function listFile()
     {
         $result = $this->UEditor->listFile();
-        $this->response()->write(json_encode($result));
+        $this->writeData($result);
     }
 
     protected function config()
     {
-        $this->response()->write(json_encode($this->UEditor->getConfig()));
+        $this->writeData($this->UEditor->getConfig());
+    }
+
+    protected function writeData($result)
+    {
+        $data = json_encode($result);
+        $callback = $this->request()->getRequestParam('callback');
+        if (empty($callback)) {
+            $this->response()->write($data);
+            return true;
+        }
+        if (preg_match("/^[\w_]+$/", $callback)) {
+            $this->response()->write(htmlspecialchars($callback) . '(' . $data . ')');
+        } else {
+            $this->response()->write(json_encode([
+                'state' => 'callback参数不合法'
+            ]));
+        }
     }
 }

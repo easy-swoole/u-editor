@@ -27,9 +27,10 @@ class UEditor
 
     protected $configList = [];
 
-    public function __construct(string $rootPath)
+    public function __construct(string $rootPath,array $configList=[])
     {
         $this->rootPath = $rootPath;
+        $this->configList = $configList;
     }
 
     public function setConfigList(array $configList): void
