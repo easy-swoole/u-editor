@@ -141,7 +141,7 @@ class UEditor
     function uploadFile($request, ?FileConfig $fileConfig = null, ?UploadConfig $uploadConfig = null): UploadResponse
     {
         $uploadConfig = $uploadConfig ?? new UploadConfig(['rootPath' => $this->rootPath]);
-        $fileConfig = $fileConfig ?? $this->getConfList()[VideoConfig::class];
+        $fileConfig = $fileConfig ?? $this->getConfList()[FileConfig::class];
         $uploadConfig->setPathFormat($fileConfig->getFilePathFormat());
         $uploadConfig->setMaxSize($fileConfig->getFileMaxSize());
         $uploadConfig->setAllowFiles($fileConfig->getFileAllowFiles());
